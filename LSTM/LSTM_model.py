@@ -29,7 +29,7 @@ def scale_data (data):
 def prepare_lstm (df_ts):
     
     #Nous allons utiliser le cours à la fermeture (close)
-    data = df['close'].to_frame().values
+    data = df_ts['close'].to_frame().values
     #scale
     scaled_data, scaler= scale_data(data)
     # train data
@@ -67,7 +67,7 @@ def lstm_model (x_train,y_train):
 
    
     model.compile(optimizer = 'adam', loss = 'mean_squared_error')
-    model.fit(x_train, y_train, epochs = 5, batch_size = 32)
+    model.fit(x_train, y_train, epochs = 2, batch_size = 32)
     
     return model 
 
@@ -105,5 +105,13 @@ def run_lstm (df):
     
     return pred,rmse
     
-
+def lstm_run_model(df):
+    df_ts = preprocess_timeserie(df)
+    data,scaled_data, scaler, x_train, y_train= prepare_lstm (df_ts)
+    model = lstm_model (x_train,y_train)
+    x_test, y_test= test_lstm_model(scaled_data,data)
+    pred = predict_lstm_model (model,x_test,scaler)
+    rmse=cal_rmse (pred, y_test)
+    
+    return pred,rmse, model
     
