@@ -18,4 +18,7 @@ class Database():
     
     def update_one(self, collection,query,update):
         self.dbname[collection].update_one(query,update, upsert=True)
+    
+     def get_collection(self):
+         return self.dbname.list_collection_names()
 
