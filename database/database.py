@@ -15,4 +15,7 @@ class Database():
 
     def find_one(self,collection, query):
         return self.dbname[collection].find_one(query)
+    
+    def update_one(self, collection,query,update):
+        self.dbname[collection].update_one(query,update, upsert=True)
 
