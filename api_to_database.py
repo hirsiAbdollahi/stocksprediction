@@ -1,4 +1,4 @@
-from database.database import Database
+from database.mongodb import Database
 from API.api_alphavantage import dow_jones_stocks
 from creds import key_api_alphavantage
 
