@@ -1,13 +1,8 @@
-import bs4 as bs
+from API.dowjones_tickers import scrap_tickers
 import requests
 import json
 import re
 
-## Recuperer le ticker 30 valeurs du dow jones 
-def dowjones_ticker():
-    #scrap yahoo finance for tickers
-    tickers_dic={'Nike': 'NKE', 'IBM': 'IBM', "McDonald's Corporation": 'MCD'}
-    return tickers_dic
 
 def get_stock_timeserie_alphavantage(ticker, api_key):
     url = "https://www.alphavantage.co/query?"
@@ -24,6 +19,7 @@ def get_stock_timeserie_alphavantage(ticker, api_key):
     querystring = {"outputsize":"full","datatype":"json","function":"TIME_SERIES_DAILY","symbol":ticker,"apikey":api_key}
     response = requests.request("GET", url, params=querystring)
     stock_json = response.json()
+    print(stock_json)
     stock= stock_json['Time Series (Daily)']
     return stock
 
@@ -41,18 +37,21 @@ def sanitize(value, is_value=True):
 # rajout de la date dans le dict avec comme key date
 def prepare_mongo_documents(stock_json_sanitize):
     stock_json_sanitize_ready= [v for k, v in stock_json_sanitize.items()]
-    for i in range(len(st)):   
+    for i in range(len(stock_json_sanitize)):   
         stock_json_sanitize_ready[i]['date']= list(stock_json_sanitize)[i]
     return stock_json_sanitize_ready
 
-
+# Retourne un dic avec en key nom de l'action et en value l'historique de son cours 
 def dow_jones_stocks (api_key):
-    tickers_dic = dowjones_ticker()
+    tickers_dic = scrap_tickers()
+    dowjones_stocks={}
     for k, v in tickers_dic.items():
         stock_json= get_stock_timeserie_alphavantage(v, api_key)
         
         stock_json_sanitize = sanitize(stock_json)
         
         stock_json_sanitize_ready =prepare_mongo_documents(stock_json_sanitize)
+
+        dowjones_stocks[k]= stock_json_sanitize_ready
         
-    return stock_json_sanitize_ready
+    return dowjones_stocks
